@@ -16,4 +16,6 @@
     <string name="update_data">Update Data</string>
     <string name="selection_program_id">Selection Program ID :</string>
     <string name="program_id">Program id</string>
+    <string name="actions">Actions</string>
+    <string name="testsection">TestSection</string>
 </resources>

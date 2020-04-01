@@ -9,6 +9,19 @@
         android:id="@+id/nav_home"
         android:name="com.brotek.selectionprogram.ui.home.HomeFragment"
         android:label="@string/menu_home"
-        tools:layout="@layout/fragment_home"/>
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_nav_home_to_nav_test"
+            app:destination="@id/nav_test" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_test"
+        android:name="com.brotek.selectionprogram.ui.test.TestFragment"
+        android:label="test_fragment"
+        tools:layout="@layout/test_fragment" >
+        <action
+            android:id="@+id/action_nav_test_to_nav_home"
+            app:destination="@id/nav_home" />
+    </fragment>
 
 </navigation>

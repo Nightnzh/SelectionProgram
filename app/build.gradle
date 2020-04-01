@@ -28,8 +28,8 @@ android {
     }
 
 }
-repositories{
-    flatDir{
+repositories {
+    flatDir {
         dirs 'libs'
     }
     mavenCentral()
@@ -62,11 +62,12 @@ dependencies {
 //okttp3
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     //retek
-    implementation (name:'appcenter-1.1', ext:'aar')    //認證中心資訊
-    implementation (name:'requesttask-2.2', ext:'aar')  //請求模組
-    implementation (name:'wkaidialog-2.0', ext:'aar')
+    implementation(name: 'appcenter-1.1', ext: 'aar')    //認證中心資訊
+    implementation(name: 'requesttask-2.2', ext: 'aar')  //請求模組
+    implementation(name: 'wkaidialog-2.0', ext: 'aar')
     implementation "androidx.core:core-ktx:1.2.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel:2.2.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"   //kai視窗
 
 

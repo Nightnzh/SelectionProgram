@@ -29,4 +29,10 @@ public class Repository {
             selectionDao.insertItem(selection);
         });
     }
+
+    public void insertAllItem(List<Selection> selectionList){
+        SelectionRoomDatabase.databaseWriteExecutor.execute(() -> {
+            selectionDao.insertAllItem(selectionList);
+        });
+    }
 }

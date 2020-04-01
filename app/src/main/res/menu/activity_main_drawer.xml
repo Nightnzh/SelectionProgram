@@ -9,15 +9,26 @@
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_menu_camera"
             android:title="@string/menu_home" />
+        <item
+            android:id="@+id/nav_test"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="@string/testsection" />
     </group>
 
-    <item android:title="@string/controller">
+    <item android:title="@string/controller"
+        android:id="@+id/menu_controller">
         <menu>
             <item android:title="@string/change_language"
+                android:id="@+id/menu_item_change_language"
                 android:icon="@drawable/iconfinder_world_115770"/>
             <item android:title="@string/test_mode"
+                android:id="@+id/menu_item_test_mode"
                 android:icon="@drawable/test"
                 app:actionLayout="@layout/switch_test"/>
+            <item android:title="@string/actions"
+                android:id="@+id/menu_item_actions"
+                android:icon="@drawable/test"
+                app:actionLayout="@layout/switch_actions"/>
         </menu>
     </item>
 </menu>

@@ -20,6 +20,9 @@ public interface SelectionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void insertItem(Selection selection);
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    public void insertAllItem(List<Selection> list);
+
     @Query("delete from selection")
     void deleteAll();
 }

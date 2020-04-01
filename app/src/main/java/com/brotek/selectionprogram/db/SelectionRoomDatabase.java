@@ -45,5 +45,4 @@ public abstract class SelectionRoomDatabase extends RoomDatabase {
         }
         return INSTANCE;
     }
-
 }

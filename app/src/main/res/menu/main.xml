@@ -7,6 +7,7 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
     <item
+        android:id="@+id/update"
         android:title="@string/update_data"
         android:icon="@drawable/ic_syncronization"
         app:showAsAction="ifRoom"
