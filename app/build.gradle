@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "com.brotek.selectionprogram"
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
         android.defaultConfig.vectorDrawables.useSupportLibrary = true
@@ -69,7 +69,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel:2.2.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"   //kai視窗
-
 
 }
 

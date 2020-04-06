@@ -11,10 +11,10 @@ import java.util.List;
 @Dao
 public interface SelectionDao {
 
-    @Query("select * from selection")
+    @Query("select * from Selections")
     public LiveData<List<Selection>> getAllItem();
 
-    @Query(value = "select * from selection where programId = :id")
+    @Query("select * from Selections where programId = :id")
     public LiveData<Selection> getItemFromId(int id);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -23,6 +23,6 @@ public interface SelectionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public void insertAllItem(List<Selection> list);
 
-    @Query("delete from selection")
+    @Query("delete from Selections")
     void deleteAll();
 }

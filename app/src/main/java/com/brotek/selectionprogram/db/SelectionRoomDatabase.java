@@ -21,6 +21,7 @@ public abstract class SelectionRoomDatabase extends RoomDatabase {
     //Dao
     public abstract SelectionDao selectionDao();
 
+    //單一實例
     private static volatile SelectionRoomDatabase INSTANCE;
     private static final int NUMBER_OF_THREADS = 4;
     public static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);

@@ -2,9 +2,10 @@ package com.brotek.selectionprogram.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.boardtek.appcenter.AppCenter
 
 
-@Entity(tableName = "Selection")
+@Entity(tableName = "Selections")
 data class Selection(
         @PrimaryKey var programId: String,
         var hour: String? = "",
@@ -15,7 +16,8 @@ data class Selection(
         var setDate: String? = "",
         var setName: String? = "",
         var vendorTitle: String? = "",
-        var data_pp : String? = "",
-        var data_content : String? = ""
+        var data_pp: String? = "",
+        var data_content: String? = "",
+        var Update_date: String? = AppCenter.getSystemTime()
 )
 

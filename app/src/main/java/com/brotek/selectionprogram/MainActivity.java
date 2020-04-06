@@ -1,12 +1,10 @@
 package com.brotek.selectionprogram;
 import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,14 +13,20 @@ import android.widget.EditText;
 import android.widget.TextView;
 import com.boardtek.appcenter.AppCenter;
 import com.boardtek.appcenter.NetworkInformation;
+import com.brotek.selectionprogram.model.Selection;
+import com.brotek.selectionprogram.model.SelectionProgram;
+import com.brotek.selectionprogram.task.TaskManager;
 import com.brotek.selectionprogram.ui.load.LoadView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.internal.$Gson$Types;
 
 import androidx.annotation.RequiresApi;
+
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -33,6 +37,8 @@ import androidx.appcompat.widget.Toolbar;
 
 
 import java.io.IOException;
+import java.lang.reflect.Type;
+
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -45,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String TAG = MainActivity.class.getSimpleName();
     private String ip = Constant.IP;
     private NavController navController;
+    private TaskManager taskManager;
 
     @SuppressLint("WrongConstant")
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -55,6 +62,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //loadingDialog
         LoadView.showLoadView(this);
 
+        taskManager = new TaskManager(getApplication());
+
         setContentView(R.layout.activity_main);
 
         repository = new Repository(getApplication());
@@ -63,8 +72,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setSupportActionBar(toolbar);
         toolbar.setOnMenuItemClickListener(this);
         //floatingActionButton
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(this);
+//        FloatingActionButton fab = findViewById(R.id.fab);
+//        fab.setOnClickListener(this);
         //drawer
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
@@ -107,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.d(TAG,"IP change to " + ip);
         });
 
-        //TODO: 
+        //TODO:
         navigationView.setNavigationItemSelectedListener(item -> {
             Log.d(TAG, item.toString());
             if(item.getItemId() == R.id.menu_item_test_mode){
@@ -117,11 +126,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if(navController.getCurrentDestination().getId() != item.getItemId())
                 if(item.getItemId() == R.id.nav_test){
                     navController.navigate(R.id.action_nav_home_to_nav_test);
-                   drawer.closeDrawer(Gravity.START,false);
+                    //drawer.closeDrawer(Gravity.START,true);
                     return true;
                 } else if(item.getItemId() == R.id.nav_home) {
                     navController.navigate(R.id.action_nav_test_to_nav_home);
-                    drawer.closeDrawers();
+                    //drawer.closeDrawer(GravityCompat.START,false);
                     return true;
                 }
             return true;
@@ -153,18 +162,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
 
-        if (v.getId() == R.id.fab) {
-            View view = LayoutInflater.from(this).inflate(R.layout.selection_num, null);
-            new MaterialAlertDialogBuilder(this,R.style.ThemeOverlay_MaterialComponents_Dialog_Alert)
-                    .setTitle("Selection ID")
-                    .setIcon(R.drawable.ic_investigation_1)
-                    .setView(view)
-                    .setPositiveButton("OK", (dialog, which) -> {
-                        EditText editText = view.findViewById(R.id.editText_selection_num);
-                        task(Constant.HTTP+ip+Constant.URL_SINGLE_ITEM,editText.getText());
-                    })
-                    .show();
-        }
+//        if (v.getId() == R.id.fab) {
+//            View view = LayoutInflater.from(this).inflate(R.layout.selection_num, null);
+//            new MaterialAlertDialogBuilder(this,R.style.ThemeOverlay_MaterialComponents_Dialog_Alert)
+//                    .setTitle("Selection ID")
+//                    .setIcon(R.drawable.ic_investigation_1)
+//                    .setView(view)
+//                    .setPositiveButton("OK", (dialog, which) -> {
+//                        EditText editText = view.findViewById(R.id.editText_selection_num);
+//                        task(Constant.HTTP+ip+Constant.URL_SINGLE_ITEM,editText.getText());
+//                    })
+//                    .show();
+//        }
 
         if(v.getId() == R.id.menu_item_test_mode){
             Log.d(TAG, String.valueOf(v.getId()));
@@ -194,102 +203,117 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         if (item.getItemId() == R.id.update){
-            getAllData(Constant.HTTP+ip+Constant.URL_ALL_ITEM);
+            taskManager.getAllData(Constant.HTTP+ip+Constant.URL_ALL_ITEM);
+//            getAllData(Constant.HTTP+ip+Constant.URL_ALL_ITEM);
         }
         return false;
     }
 
-    @SuppressLint("StaticFieldLeak")
-    void task(String url, Editable num){
-        new AsyncTask<Void,Void,Void>(){
-            @Override
-            protected Void doInBackground(Void... voids) {
-                OkHttpClient okHttpClient = new OkHttpClient();
-                FormBody formBody = new FormBody.Builder()
-                        .add(Constant.POST_PROGRAMID,num.toString())
-                        .build();
-                Request request = new Request.Builder()
-                        .url(url)
-                        .post(formBody)
-                        .build();
-                try {
-                    Log.d(TAG,"POST_URL:"+ url + Constant.POST_PROGRAMID+num.toString());
-                    Response response = okHttpClient.newCall(request).execute();
-                    assert response.body() != null;
-                    Log.d(TAG, response.body().string());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                LoadView.showLoadView(getApplicationContext());
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                LoadView.dismiss();
-            }
-
-            @Override
-            protected void onProgressUpdate(Void... values) {
-                super.onProgressUpdate(values);
-            }
-        }.execute();
-    }
-
-
-    @SuppressLint("StaticFieldLeak")
-    void getAllData(String url){
-        new AsyncTask<Void,Void,Void>(){
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            protected Void doInBackground(Void... voids) {
-                OkHttpClient okHttpClient = new OkHttpClient();
-                Request request = new Request.Builder()
-                        .url(url)
-                        .get()
-                        .build();
-                try {
-                    //reposeon
-                    Response response = okHttpClient.newCall(request).execute();
-                    //gson
-                    Gson gson = new Gson();
-                    Log.d(TAG,"GET_URL:"+ url);
-                    assert response.body() != null;
-//                    JsonArray jsonArray = gson.fromJson(response.body().string(), JsonArray.class);
-//                    Log.d(TAG,jsonArray.toString());
-//                    jsonArray.forEach(jsonElement -> {
-//                        Log.d(TAG,jsonElement.toString());
+//    @SuppressLint("StaticFieldLeak")
+//    void task(String url, Editable num){
+//        new AsyncTask<Void,Void,Void>(){
+//            @Override
+//            protected Void doInBackground(Void... voids) {
+//                OkHttpClient okHttpClient = new OkHttpClient();
+//                FormBody formBody = new FormBody.Builder()
+//                        .add(Constant.POST_PROGRAMID,num.toString())
+//                        .build();
+//                Request request = new Request.Builder()
+//                        .url(url)
+//                        .post(formBody)
+//                        .build();
+//                try {
+//                    Log.d(TAG,"POST_URL:"+ url + Constant.POST_PROGRAMID+num.toString());
+//                    Response response = okHttpClient.newCall(request).execute();
+//                    assert response.body() != null;
+//                    Log.d(TAG, response.body().string());
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                return null;
+//            }
+//
+//            @Override
+//            protected void onPreExecute() {
+//                super.onPreExecute();
+//                LoadView.showLoadView(getApplicationContext());
+//            }
+//
+//            @Override
+//            protected void onPostExecute(Void aVoid) {
+//                super.onPostExecute(aVoid);
+//                LoadView.dismiss();
+//            }
+//
+//            @Override
+//            protected void onProgressUpdate(Void... values) {
+//                super.onProgressUpdate(values);
+//            }
+//        }.execute();
+//    }
+//
+//    @SuppressLint("StaticFieldLeak")
+//    void getAllData(String url){
+//        new AsyncTask<Void,Void,Void>(){
+//            @RequiresApi(api = Build.VERSION_CODES.N)
+//            @Override
+//            protected Void doInBackground(Void... voids) {
+//                OkHttpClient okHttpClient = new OkHttpClient();
+//                Request request = new Request.Builder()
+//                        .url(url)
+//                        .get()
+//                        .build();
+//                try {
+//                    //reposeon
+//                    Response response = okHttpClient.newCall(request).execute();
+//                    //gson
+//                    Gson gson = new Gson();
+//                    Log.d(TAG,"GET_URL:"+ url);
+//                    assert response.body() != null;
+//                    String json = response.body().string();
+//                    SelectionProgram selectionProgram = gson.fromJson(json, SelectionProgram.class);
+//                    //insertData
+//                    selectionProgram.forEach(selectionProgramItem -> {
+//                        repository.insert(new Selection(
+//                                selectionProgramItem.getProgramId(),
+//                                selectionProgramItem.getHour(),
+//                                selectionProgramItem.isAutoAddVersion(),
+//                                selectionProgramItem.isPause(),
+//                                selectionProgramItem.getMinute(),
+//                                selectionProgramItem.getRemark(),
+//                                selectionProgramItem.getSetDate(),
+//                                selectionProgramItem.getSetName(),
+//                                selectionProgramItem.getVendorTitle(),
+//                                selectionProgramItem.getData_pp().toString(),
+//                                selectionProgramItem.getData_content().toString(),
+//                                AppCenter.getSystemTime()
+//                        ));
 //                    });
-                    Log.d(TAG,response.body().string());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return null;
-            }
-
-            @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                LoadView.showLoadView(getApplicationContext(),"Get All Data...");
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                LoadView.dismiss();
-            }
-
-            @Override
-            protected void onProgressUpdate(Void... values) {
-                super.onProgressUpdate(values);
-            }
-        }.execute();
-    }
+//
+//                    Log.d(TAG,selectionProgram.toString());
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//                return null;
+//            }
+//
+//            @Override
+//            protected void onPreExecute() {
+//                super.onPreExecute();
+//                LoadView.showLoadView(getApplicationContext(),"Get All Data...");
+//            }
+//
+//            @Override
+//            protected void onPostExecute(Void aVoid) {
+//                super.onPostExecute(aVoid);
+//                LoadView.dismiss();
+//            }
+//
+//            @Override
+//            protected void onProgressUpdate(Void... values) {
+//                super.onProgressUpdate(values);
+//            }
+//        }.execute();
+//    }
 }
 
